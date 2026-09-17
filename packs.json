@@ -1,0 +1,8 @@
+{
+  "packs": [
+    { "id": "001", "title": "BRUTAL CYPRUS", "location": "Nicosia & Limassol", "size": "340MB", "files": 18, "zip": "" },
+    { "id": "002", "title": "CYPRUS COASTLINES", "location": "Kyrenia & Famagusta", "size": "280MB", "files": 14, "zip": "" },
+    { "id": "003", "title": "HERITAGE TRAILS", "location": "Lefkara & Troodos", "size": "310MB", "files": 16, "zip": "" },
+    { "id": "004", "title": "URBAN TEXTURES", "location": "Village Archi.", "size": "255MB", "files": 12, "zip": "" }
+  ]
+}

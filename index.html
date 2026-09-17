@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERT // ARCHITECTURAL ARCHIVE</title>
+<meta name="description" content="Architectural Archive — photo gallery and wallpaper pack distribution by Mert, photographer & PhD researcher in tourism. Cyprus & the Mediterranean.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070707;
+    --bg-deep: #000000;
+    --line: #222222;
+    --line-strong: #333333;
+    --text: #F0F0F0;
+    --text-dim: #777777;
+    --accent: #FFFF00;
+    --accent-alt: #FFFFFF;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 7, 7, 0.96);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 20px;
+  }
+
+  .brand {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .brand .sep {
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  nav.links {
+    display: flex;
+    gap: 0;
+  }
+
+  nav.links a {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    border: 1px solid transparent;
+    margin-left: -1px;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+
+  nav.links a:hover,
+  nav.links a:focus-visible {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  /* ---------- SECTIONS ---------- */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  section {
+    padding: 48px 20px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .section-head h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .section-head .tag {
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* ---------- GALLERY GRID ---------- */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+
+  .card {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-deep);
+    transition: border-color 0.15s ease;
+  }
+
+  .card figure {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05) brightness(0.85);
+    transform: scale(1.001);
+    transition: filter 0.35s ease, transform 0.35s ease;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+  }
+
+  .card:hover img {
+    filter: grayscale(0) contrast(1) brightness(1);
+    transform: scale(1.05);
+  }
+
+  .card .index {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 4px 8px;
+    background: var(--accent);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .exif {
+    padding: 10px 12px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    border-top: none;
+  }
+
+  .exif .k {
+    color: var(--text-dim);
+  }
+  .exif .v {
+    color: var(--text);
+  }
+
+  .card:hover .exif .k {
+    color: var(--accent);
+  }
+
+  /* ---------- DOWNLOADS TABLE ---------- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 12px 14px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--bg-deep);
+    color: var(--text-dim);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 14px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  tbody tr {
+    transition: background 0.12s ease;
+  }
+
+  tbody tr:hover {
+    background: #0d0d0d;
+  }
+
+  tbody tr:hover td {
+    border-bottom-color: var(--line-strong);
+  }
+
+  .pack-id {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .theme {
+    font-weight: 700;
+  }
+  .theme .sub {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid var(--text);
+    color: var(--text);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  .btn.ghost {
+    border-color: var(--line-strong);
+    color: var(--text-dim);
+  }
+
+  .note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .note span {
+    color: var(--accent);
+  }
+
+  /* ---------- ABOUT ---------- */
+  .about-box {
+    border: 1px solid var(--line-strong);
+    padding: 28px;
+    max-width: 760px;
+  }
+
+  .about-box .label {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .about-box p {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .about-box p .hl {
+    color: var(--accent);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 20px;
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .foot .handle {
+    color: var(--text);
+  }
+  .foot .handle:hover {
+    color: var(--accent);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .brand {
+      font-size: 12px;
+    }
+    nav.links a {
+      padding: 8px 9px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .gallery-grid {
+      grid-template-columns: 1fr;
+    }
+    .nav {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .brand {
+      white-space: normal;
+      text-align: center;
+    }
+    nav.links {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .section-head {
+      flex-direction: column;
+      gap: 4px;
+    }
+    section {
+      padding: 32px 16px;
+    }
+    .about-box {
+      padding: 20px;
+    }
+    .foot {
+      flex-direction: column;
+      text-align: center;
+    }
+    .exif {
+      font-size: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="nav">
+    <div class="brand">MERT <span class="sep">//</span> PHOTOGRAPHY <span class="sep">//</span> TOURISM RESEARCH <span class="sep">//</span> CYPRUS</div>
+    <nav class="links">
+      <a href="#gallery">[GALLERY]</a>
+      <a href="#archive">[ARCHIVE]</a>
+      <a href="#downloads">[DOWNLOADS]</a>
+      <a href="#about">[ABOUT]</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="section-head">
+      <h2>[GALLERY] THE OPEN EXHIBITION</h2>
+      <span class="tag">ARCHITECTURAL FORMS // CYPRUS &amp; MEDITERRANEAN</span>
+    </div>
+
+    <div class="gallery-grid">
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">001</span>
+          <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=900&q=80" alt="Brutalist concrete architecture" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_01 <span class="k">// LOC:</span> Nicosia <span class="k">// ISO:</span> 400 <span class="k">// f/</span>5.6</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">002</span>
+          <img src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80" alt="Concrete building facade" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_02 <span class="k">// LOC:</span> Limassol <span class="k">// ISO:</span> 200 <span class="k">// f/</span>8.0</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">003</span>
+          <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80" alt="Urban architectural grid" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_03 <span class="k">// LOC:</span> Kyrenia <span class="k">// ISO:</span> 100 <span class="k">// f/</span>11</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">004</span>
+          <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=900&q=80" alt="Brutalist concrete structure" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_04 <span class="k">// LOC:</span> Famagusta <span class="k">// ISO:</span> 400 <span class="k">// f/</span>4.0</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">005</span>
+          <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=80" alt="Coastal landscape" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_05 <span class="k">// LOC:</span> Lefkara <span class="k">// ISO:</span> 200 <span class="k">// f/</span>5.6</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">006</span>
+          <img src="https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=900&q=80" alt="Apartment building" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_06 <span class="k">// LOC:</span> Troodos <span class="k">// ISO:</span> 320 <span class="k">// f/</span>7.1</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">007</span>
+          <img src="https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a?auto=format&fit=crop&w=900&q=80" alt="Modern building geometry" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_07 <span class="k">// LOC:</span> Nicosia <span class="k">// ISO:</span> 400 <span class="k">// f/</span>6.3</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">008</span>
+          <img src="https://images.unsplash.com/photo-1431576901776-e539bd916ba2?auto=format&fit=crop&w=900&q=80" alt="Concrete architecture detail" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_08 <span class="k">// LOC:</span> Limassol <span class="k">// ISO:</span> 160 <span class="k">// f/</span>9.0</div>
+      </a>
+
+      <a class="card" href="#archive">
+        <figure>
+          <span class="index">009</span>
+          <img src="https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&w=900&q=80" alt="Minimal architectural form" loading="lazy">
+        </figure>
+        <div class="exif"><span class="k">FILE:</span> CYPRUS_09 <span class="k">// LOC:</span> Kyrenia <span class="k">// ISO:</span> 250 <span class="k">// f/</span>5.0</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ARCHIVE / DOWNLOADS -->
+  <section id="archive">
+    <div class="section-head">
+      <h2 id="downloads">[DOWNLOADS] ARCHIVE DIRECTORY <span class="sep" style="color:var(--accent)">//</span> WALLPAPER PACKS</h2>
+      <span class="tag">FREE // HIGH-RES</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>PACK_ID</th>
+            <th>LOCATION / THEME</th>
+            <th>SIZE</th>
+            <th>FILES</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="pack-rows"></tbody>
+      </table>
+    </div>
+
+    <p class="note"><span>[i]</span> Raw .JPG exports, packaged as .ZIP.</p>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-head">
+      <h2>[ABOUT]</h2>
+      <span class="tag">PHOTOGRAPHER / RESEARCHER</span>
+    </div>
+    <div class="about-box">
+      <span class="label">// PROFILE</span>
+      <p><span class="hl">MERT</span> // Photographer &amp; PhD Researcher in Tourism. Documenting architectural forms, cultural landscapes, and spatial narratives across Cyprus and the Mediterranean.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot">
+    <span>© 2026 MERT // OPEN EXHIBITION</span>
+    <a class="handle" href="https://www.instagram.com/mert_visuals/" target="_blank" rel="noopener">@MERT_VISUALS</a>
+  </div>
+</footer>
+
+<script>
+  // Fallback data if packs.json cannot be fetched (e.g. opened as a local file).
+  var DEFAULT_PACKS = {
+    packs: [
+      { id: "001", title: "BRUTAL CYPRUS", location: "Nicosia & Limassol", size: "340MB", files: 18, zip: "" },
+      { id: "002", title: "CYPRUS COASTLINES", location: "Kyrenia & Famagusta", size: "280MB", files: 14, zip: "" },
+      { id: "003", title: "HERITAGE TRAILS", location: "Lefkara & Troodos", size: "310MB", files: 16, zip: "" },
+      { id: "004", title: "URBAN TEXTURES", location: "Village Archi.", size: "255MB", files: 12, zip: "" }
+    ]
+  };
+
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function renderPacks(packs) {
+    var tbody = document.getElementById("pack-rows");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    packs.forEach(function (p) {
+      var action = p.zip
+        ? '<a class="btn" href="' + esc(p.zip) + '" download>[DOWNLOAD .ZIP]</a>'
+        : '<span class="btn ghost" title="Pack file not uploaded yet">[PENDING]</span>';
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><span class="pack-id">' + esc(p.id) + '</span></td>' +
+        '<td><span class="theme">' + esc(p.title) + ' <span class="sub">// ' + esc(p.location) + '</span></span></td>' +
+        '<td>' + esc(p.size) + '</td>' +
+        '<td>' + esc(p.files) + ' .JPG</td>' +
+        '<td>' + action + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  fetch("packs.json")
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (d) { renderPacks(d.packs); })
+    .catch(function () { renderPacks(DEFAULT_PACKS.packs); });
+
+  // Smooth scrolling for header nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var targetId = this.getAttribute('href');
+      if (targetId === '#' || targetId === '#!') return;
+      var target = document.querySelector(targetId);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

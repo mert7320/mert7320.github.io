@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERT // PACK UPLOADER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root {
+    --bg: #070707;
+    --bg-deep: #000000;
+    --line: #222222;
+    --line-strong: #333333;
+    --text: #F0F0F0;
+    --text-dim: #777777;
+    --accent: #FFFF00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  ::selection { background: var(--accent); color: #000; }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  header {
+    border: 1px solid var(--line);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+
+  header h1 {
+    font-size: 18px;
+    letter-spacing: 0.02em;
+  }
+  header .sub {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  header .sub b { color: var(--accent); font-weight: 400; }
+
+  .panel {
+    border: 1px solid var(--line);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .panel > .label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  /* Drop zone */
+  #drop {
+    border: 1px dashed var(--line-strong);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  #drop.drag {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #0a0a0a;
+  }
+  #drop .big { font-size: 15px; color: var(--text); }
+  #drop .big b { color: var(--accent); }
+
+  .btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border: 1px solid var(--text);
+    color: var(--text);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    background: transparent;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+  .btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.solid { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.solid:hover { background: var(--text); color: #000; border-color: var(--text); }
+  .btn.ghost { border-color: var(--line-strong); color: var(--text-dim); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    background: var(--bg-deep);
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  .row3 {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Preview */
+  .meta {
+    display: flex;
+    gap: 18px;
+    font-size: 12px;
+    margin-bottom: 16px;
+    color: var(--text-dim);
+  }
+  .meta b { color: var(--text); }
+  .meta .n { color: var(--accent); font-weight: 700; }
+
+  .thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .thumbs .t {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--bg-deep);
+  }
+  .thumbs img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  /* Output */
+  #output {
+    width: 100%;
+    min-height: 160px;
+    background: var(--bg-deep);
+    border: 1px solid var(--line-strong);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  #status {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    min-height: 1.4em;
+  }
+  #status.ok { color: var(--accent); }
+  #status.err { color: #ff4d4d; }
+
+  /* Instructions */
+  ol.steps { list-style: none; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s;
+    position: relative;
+    padding: 10px 0 10px 40px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  ol.steps code {
+    background: var(--bg-deep);
+    border: 1px solid var(--line);
+    padding: 1px 5px;
+    color: var(--text);
+  }
+
+  .warn {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 14px;
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .row3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>[UPLOAD] PACK BUILDER</h1>
+    <div class="sub">Drag a folder of photos in. This runs <b>entirely in your browser</b> — nothing is uploaded anywhere.</div>
+  </header>
+
+  <div class="warn">This tool does not push to GitHub. It prepares the two files you need, then you drop them into GitHub in 3 clicks. Follow the steps at the bottom.</div>
+
+  <!-- DROP -->
+  <div class="panel">
+    <span class="label">01 // SELECT PHOTOS</span>
+    <div id="drop">
+      <div class="big">DRAG &amp; DROP A FOLDER HERE</div>
+      <div style="margin:8px 0">or</div>
+      <button class="btn ghost" type="button" id="pickBtn">[CHOOSE FOLDER]</button>
+    </div>
+    <input type="file" id="picker" multiple webkitdirectory style="display:none">
+
+    <div id="meta" class="meta" style="display:none; margin-top:16px;">
+      <span class="n" id="count">0</span> photos
+      <span>·</span>
+      <span id="size">0MB</span>
+    </div>
+    <div id="thumbs" class="thumbs"></div>
+  </div>
+
+  <!-- DETAILS -->
+  <div class="panel">
+    <span class="label">02 // PACK DETAILS</span>
+    <div class="row3">
+      <div class="field">
+        <label>PACK_ID</label>
+        <input id="f_id" type="text" value="001" placeholder="001">
+        <div class="hint">3-digit number, next unused.</div>
+      </div>
+      <div class="field">
+        <label>TITLE</label>
+        <input id="f_title" type="text" placeholder="BRUTAL CYPRUS">
+      </div>
+      <div class="field">
+        <label>LOCATION / THEME</label>
+        <input id="f_loc" type="text" placeholder="Nicosia &amp; Limassol">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>CURRENT packs.json (optional — paste to add on top)</label>
+      <textarea id="f_existing" placeholder='{ "packs": [ ... ] }'></textarea>
+      <div class="hint">If you paste your current packs.json here, the new pack is added to it. Leave blank to start fresh.</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn solid" type="button" id="buildBtn">[BUILD packs.json]</button>
+      <button class="btn" type="button" id="zipBtn" disabled>[DOWNLOAD .ZIP]</button>
+      <button class="btn" type="button" id="copyBtn" disabled>[COPY JSON]</button>
+      <button class="btn" type="button" id="jsonBtn" disabled>[DOWNLOAD packs.json]</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="panel">
+    <span class="label">03 // GENERATED packs.json</span>
+    <textarea id="output" readonly placeholder="Build the pack first, the JSON appears here."></textarea>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="panel">
+    <span class="label">04 // UPLOAD TO GITHUB</span>
+    <ol class="steps">
+      <li>Build the pack above, then download the <code>.zip</code> and <code>packs.json</code>.</li>
+      <li>Open <code>github.com/&lt;you&gt;/mert7320.github.io</code> in your browser.</li>
+      <li>Click <code>Add file</code> → <code>Upload files</code>.</li>
+      <li>Drag the <code>.zip</code> into the <code>packs/</code> folder. If there is no <code>packs/</code> folder, type <code>packs/</code> in the filename box to create it.</li>
+      <li>Go back, click <code>Add file</code> → <code>Upload files</code> again, and upload the new <code>packs.json</code> to the root (replacing the old one).</li>
+      <li>Scroll down, write a message like <code>add pack 001</code>, and click <code>Commit changes</code>.</li>
+      <li>Wait a minute, then visit <code>https://&lt;you&gt;.github.io</code> — the new row appears with a working download button.</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+  var images = [];        // selected File objects
+  var lastJSON = "";      // latest generated packs.json string
+
+  var drop = document.getElementById("drop");
+  var picker = document.getElementById("picker");
+  var pickBtn = document.getElementById("pickBtn");
+  var meta = document.getElementById("meta");
+  var thumbsEl = document.getElementById("thumbs");
+  var statusEl = document.getElementById("status");
+
+  var IMG_RE = /\.(jpe?g|png|webp|gif)$/i;
+
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = cls || "";
+  }
+
+  function addFiles(files) {
+    var added = [];
+    files.forEach(function (f) {
+      if (!IMG_RE.test(f.name)) return;
+      if (images.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
+      images.push(f);
+      added.push(f);
+    });
+    renderPreview();
+    return added.length;
+  }
+
+  function renderPreview() {
+    var total = images.reduce(function (s, f) { return s + f.size; }, 0);
+    var mb = total ? Math.max(1, Math.round(total / 1048576)) : 0;
+    document.getElementById("count").textContent = images.length;
+    document.getElementById("size").textContent = mb + "MB";
+
+    meta.style.display = images.length ? "flex" : "none";
+    thumbsEl.innerHTML = "";
+
+    images.forEach(function (f) {
+      var cell = document.createElement("div");
+      cell.className = "t";
+      var img = document.createElement("img");
+      img.alt = f.name;
+      img.src = URL.createObjectURL(f);
+      cell.appendChild(img);
+      thumbsEl.appendChild(cell);
+    });
+
+    document.getElementById("zipBtn").disabled = images.length === 0;
+  }
+
+  // --- Folder traversal (drop) ---
+  function traverseEntry(entry) {
+    return new Promise(function (resolve) {
+      if (entry.isFile) {
+        entry.file(function (f) { resolve([f]); }, function () { resolve([]); });
+      } else if (entry.isDirectory) {
+        var reader = entry.createReader();
+        var all = [];
+        var readBatch = function () {
+          reader.readEntries(function (entries) {
+            if (!entries.length) { resolve(all); return; }
+            var jobs = entries.map(traverseEntry);
+            Promise.all(jobs).then(function (results) {
+              results.forEach(function (r) { all = all.concat(r); });
+              readBatch();
+            });
+          }, function () { resolve(all); });
+        };
+        readBatch();
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("drag"); });
+  drop.addEventListener("dragleave", function () { drop.classList.remove("drag"); });
+  drop.addEventListener("drop", function (e) {
+    e.preventDefault();
+    drop.classList.remove("drag");
+    var items = e.dataTransfer.items;
+    if (items && items.length) {
+      var jobs = [];
+      for (var i = 0; i < items.length; i++) {
+        var en = items[i].webkitGetAsEntry && items[i].webkitGetAsEntry();
+        if (en) jobs.push(traverseEntry(en));
+      }
+      Promise.all(jobs).then(function (results) {
+        var files = [];
+        results.forEach(function (r) { files = files.concat(r); });
+        var n = addFiles(files);
+        if (!n) setStatus("No new image files found.", "err");
+      });
+    } else if (e.dataTransfer.files.length) {
+      addFiles(Array.prototype.slice.call(e.dataTransfer.files));
+    }
+  });
+
+  pickBtn.addEventListener("click", function () { picker.click(); });
+  picker.addEventListener("change", function () {
+    addFiles(Array.prototype.slice.call(picker.files));
+    picker.value = "";
+  });
+
+  // --- Build packs.json ---
+  function buildJSON() {
+    var id = document.getElementById("f_id").value.trim();
+    var title = document.getElementById("f_title").value.trim();
+    var loc = document.getElementById("f_loc").value.trim();
+
+    if (!images.length) { setStatus("Add some photos first.", "err"); return null; }
+    if (!id) { setStatus("PACK_ID is required.", "err"); return null; }
+    if (!title) { setStatus("TITLE is required.", "err"); return null; }
+    if (!loc) { setStatus("LOCATION is required.", "err"); return null; }
+
+    var total = images.reduce(function (s, f) { return s + f.size; }, 0);
+    var mb = Math.max(1, Math.round(total / 1048576));
+
+    var pack = {
+      id: id,
+      title: title.toUpperCase(),
+      location: loc,
+      size: mb + "MB",
+      files: images.length,
+      zip: "packs/" + id + ".zip"
+    };
+
+    var existing = [];
+    var raw = document.getElementById("f_existing").value.trim();
+    if (raw) {
+      try {
+        var parsed = JSON.parse(raw);
+        existing = parsed.packs || parsed;
+        if (!Array.isArray(existing)) { setStatus("Pasted JSON must be a list of packs.", "err"); return null; }
+      } catch (err) {
+        setStatus("Pasted packs.json is not valid JSON.", "err");
+        return null;
+      }
+    }
+
+    var idx = existing.findIndex(function (p) { return p.id === pack.id; });
+    if (idx >= 0) existing[idx] = pack; else existing.push(pack);
+
+    lastJSON = JSON.stringify({ packs: existing }, null, 2);
+    document.getElementById("output").value = lastJSON;
+    document.getElementById("copyBtn").disabled = false;
+    document.getElementById("jsonBtn").disabled = false;
+    setStatus("packs.json built — " + existing.length + " pack(s) total.", "ok");
+    return pack;
+  }
+
+  function downloadBlob(blob, name) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  }
+
+  document.getElementById("buildBtn").addEventListener("click", buildJSON);
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    if (!lastJSON) return;
+    var done = function () { setStatus("Copied to clipboard.", "ok"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastJSON).then(done, function () { fallbackCopy(); });
+    } else {
+      fallbackCopy();
+    }
+    function fallbackCopy() {
+      var ta = document.getElementById("output");
+      ta.select();
+      document.execCommand("copy");
+      done();
+    }
+  });
+
+  document.getElementById("jsonBtn").addEventListener("click", function () {
+    if (!lastJSON) return;
+    downloadBlob(new Blob([lastJSON], { type: "application/json" }), "packs.json");
+    setStatus("packs.json downloaded.", "ok");
+  });
+
+  document.getElementById("zipBtn").addEventListener("click", function () {
+    var pack = buildJSON();
+    if (!pack) return;
+    if (!window.JSZip) { setStatus("Zip library failed to load — check your internet connection.", "err"); return; }
+    var zip = new JSZip();
+    images.forEach(function (f) { zip.file(f.name, f); });
+    zip.generateAsync({ type: "blob" }).then(function (blob) {
+      downloadBlob(blob, pack.id + ".zip");
+      setStatus("Zip downloaded (" + pack.files + " files).", "ok");
+    });
+  });
+</script>
+</body>
+</html>
