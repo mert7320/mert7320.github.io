@@ -46,15 +46,8 @@
     margin-bottom: 24px;
   }
 
-  header h1 {
-    font-size: 18px;
-    letter-spacing: 0.02em;
-  }
-  header .sub {
-    color: var(--text-dim);
-    font-size: 12px;
-    margin-top: 4px;
-  }
+  header h1 { font-size: 18px; letter-spacing: 0.02em; }
+  header .sub { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
   header .sub b { color: var(--accent); font-weight: 400; }
 
   .panel {
@@ -72,7 +65,6 @@
     display: block;
   }
 
-  /* Drop zone */
   #drop {
     border: 1px dashed var(--line-strong);
     padding: 40px 20px;
@@ -81,11 +73,7 @@
     color: var(--text-dim);
     transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   }
-  #drop.drag {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: #0a0a0a;
-  }
+  #drop.drag { border-color: var(--accent); color: var(--accent); background: #0a0a0a; }
   #drop .big { font-size: 15px; color: var(--text); }
   #drop .big b { color: var(--accent); }
 
@@ -108,10 +96,7 @@
   .btn.ghost { border-color: var(--line-strong); color: var(--text-dim); }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* Form fields */
-  .field {
-    margin-bottom: 16px;
-  }
+  .field { margin-bottom: 16px; }
   .field label {
     display: block;
     font-size: 11px;
@@ -134,21 +119,15 @@
   .field textarea { resize: vertical; min-height: 90px; }
   .hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
-  .row3 {
-    display: grid;
-    grid-template-columns: 120px 1fr 1fr;
-    gap: 12px;
-  }
+  .row3 { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 12px; }
 
-  /* Preview */
   .meta {
     display: flex;
     gap: 18px;
     font-size: 12px;
-    margin-bottom: 16px;
+    margin: 16px 0;
     color: var(--text-dim);
   }
-  .meta b { color: var(--text); }
   .meta .n { color: var(--accent); font-weight: 700; }
 
   .thumbs {
@@ -165,21 +144,10 @@
     overflow: hidden;
     background: var(--bg-deep);
   }
-  .thumbs img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  .thumbs img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 18px;
-  }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
 
-  /* Output */
   #output {
     width: 100%;
     min-height: 160px;
@@ -193,16 +161,21 @@
     word-break: break-all;
   }
 
-  #status {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-dim);
-    min-height: 1.4em;
-  }
+  #status { margin-top: 12px; font-size: 12px; color: var(--text-dim); min-height: 1.4em; }
   #status.ok { color: var(--accent); }
   #status.err { color: #ff4d4d; }
 
-  /* Instructions */
+  #warnings {
+    display: none;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 10px 14px;
+    font-size: 12px;
+    margin-top: 14px;
+    white-space: pre-wrap;
+  }
+  #warnings.show { display: block; }
+
   ol.steps { list-style: none; counter-reset: s; }
   ol.steps li {
     counter-increment: s;
@@ -245,10 +218,10 @@
 
   <header>
     <h1>[UPLOAD] PACK BUILDER</h1>
-    <div class="sub">Drag a folder of photos in. This runs <b>entirely in your browser</b> — nothing is uploaded anywhere.</div>
+    <div class="sub">Drag a folder of photos in. Runs <b>entirely in your browser</b> — nothing is uploaded until you copy the result to GitHub yourself.</div>
   </header>
 
-  <div class="warn">This tool does not push to GitHub. It prepares the two files you need, then you drop them into GitHub in 3 clicks. Follow the steps at the bottom.</div>
+  <div class="warn">GitHub accepts files up to <b>25 MB each</b> via the website. Keep each pack under 25 MB total. Bigger than that and the upload will fail.</div>
 
   <!-- DROP -->
   <div class="panel">
@@ -260,7 +233,7 @@
     </div>
     <input type="file" id="picker" multiple webkitdirectory style="display:none">
 
-    <div id="meta" class="meta" style="display:none; margin-top:16px;">
+    <div id="meta" class="meta" style="display:none;">
       <span class="n" id="count">0</span> photos
       <span>·</span>
       <span id="size">0MB</span>
@@ -290,15 +263,16 @@
     <div class="field">
       <label>CURRENT packs.json (optional — paste to add on top)</label>
       <textarea id="f_existing" placeholder='{ "packs": [ ... ] }'></textarea>
-      <div class="hint">If you paste your current packs.json here, the new pack is added to it. Leave blank to start fresh.</div>
+      <div class="hint">Paste your current packs.json to keep existing packs. Leave blank to start fresh (removes the demo photos).</div>
     </div>
 
     <div class="actions">
-      <button class="btn solid" type="button" id="buildBtn">[BUILD packs.json]</button>
-      <button class="btn" type="button" id="zipBtn" disabled>[DOWNLOAD .ZIP]</button>
+      <button class="btn solid" type="button" id="packageBtn" disabled>[DOWNLOAD UPLOAD PACKAGE]</button>
+      <button class="btn" type="button" id="buildBtn">[BUILD packs.json]</button>
       <button class="btn" type="button" id="copyBtn" disabled>[COPY JSON]</button>
       <button class="btn" type="button" id="jsonBtn" disabled>[DOWNLOAD packs.json]</button>
     </div>
+    <div id="warnings"></div>
     <div id="status"></div>
   </div>
 
@@ -312,30 +286,31 @@
   <div class="panel">
     <span class="label">04 // UPLOAD TO GITHUB</span>
     <ol class="steps">
-      <li>Build the pack above, then download the <code>.zip</code> and <code>packs.json</code>.</li>
-      <li>Open <code>github.com/&lt;you&gt;/mert7320.github.io</code> in your browser.</li>
-      <li>Click <code>Add file</code> → <code>Upload files</code>.</li>
-      <li>Drag the <code>.zip</code> into the <code>packs/</code> folder. If there is no <code>packs/</code> folder, type <code>packs/</code> in the filename box to create it.</li>
-      <li>Go back, click <code>Add file</code> → <code>Upload files</code> again, and upload the new <code>packs.json</code> to the root (replacing the old one).</li>
-      <li>Scroll down, write a message like <code>add pack 001</code>, and click <code>Commit changes</code>.</li>
-      <li>Wait a minute, then visit <code>https://&lt;you&gt;.github.io</code> — the new row appears with a working download button.</li>
+      <li>Click <code>[DOWNLOAD UPLOAD PACKAGE]</code>. This saves one <code>.zip</code> containing everything.</li>
+      <li>Double-click the downloaded zip to extract it. You get a <code>packs/</code> folder and a <code>packs.json</code> file.</li>
+      <li>Open <code>github.com/&lt;you&gt;/mert7320.github.io</code> → <code>Add file</code> → <code>Upload files</code>.</li>
+      <li>Drag the <code>packs</code> folder <b>and</b> the <code>packs.json</code> file into the upload box together. GitHub keeps the folder structure.</li>
+      <li>Scroll down, type a message like <code>add pack 001</code>, and click <code>Commit changes</code>.</li>
+      <li>Wait a minute, then visit <code>https://&lt;you&gt;.github.io</code> — your photos appear in the gallery and the pack appears in the archive.</li>
     </ol>
   </div>
 
 </div>
 
 <script>
-  var images = [];        // selected File objects
-  var lastJSON = "";      // latest generated packs.json string
+  var images = [];
+  var lastJSON = "";
+  var lastPack = null;
 
   var drop = document.getElementById("drop");
   var picker = document.getElementById("picker");
-  var pickBtn = document.getElementById("pickBtn");
-  var meta = document.getElementById("meta");
+  var metaEl = document.getElementById("meta");
   var thumbsEl = document.getElementById("thumbs");
   var statusEl = document.getElementById("status");
+  var warningsEl = document.getElementById("warnings");
 
   var IMG_RE = /\.(jpe?g|png|webp|gif)$/i;
+  var MAX = 25 * 1024 * 1024; // 25 MB
 
   function setStatus(msg, cls) {
     statusEl.textContent = msg;
@@ -343,15 +318,15 @@
   }
 
   function addFiles(files) {
-    var added = [];
+    var added = 0;
     files.forEach(function (f) {
       if (!IMG_RE.test(f.name)) return;
       if (images.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
       images.push(f);
-      added.push(f);
+      added++;
     });
     renderPreview();
-    return added.length;
+    return added;
   }
 
   function renderPreview() {
@@ -360,9 +335,8 @@
     document.getElementById("count").textContent = images.length;
     document.getElementById("size").textContent = mb + "MB";
 
-    meta.style.display = images.length ? "flex" : "none";
+    metaEl.style.display = images.length ? "flex" : "none";
     thumbsEl.innerHTML = "";
-
     images.forEach(function (f) {
       var cell = document.createElement("div");
       cell.className = "t";
@@ -373,10 +347,21 @@
       thumbsEl.appendChild(cell);
     });
 
-    document.getElementById("zipBtn").disabled = images.length === 0;
+    document.getElementById("packageBtn").disabled = images.length === 0;
+    showWarnings();
   }
 
-  // --- Folder traversal (drop) ---
+  function showWarnings() {
+    var lines = [];
+    images.forEach(function (f) {
+      if (f.size > MAX) lines.push("— " + f.name + " is over 25 MB and will fail to upload.");
+    });
+    var total = images.reduce(function (s, f) { return s + f.size; }, 0);
+    if (total > MAX) lines.push("— The pack is over 25 MB total. Split it into smaller packs.");
+    warningsEl.textContent = lines.join("\n");
+    warningsEl.className = lines.length ? "show" : "";
+  }
+
   function traverseEntry(entry) {
     return new Promise(function (resolve) {
       if (entry.isFile) {
@@ -387,8 +372,7 @@
         var readBatch = function () {
           reader.readEntries(function (entries) {
             if (!entries.length) { resolve(all); return; }
-            var jobs = entries.map(traverseEntry);
-            Promise.all(jobs).then(function (results) {
+            Promise.all(entries.map(traverseEntry)).then(function (results) {
               results.forEach(function (r) { all = all.concat(r); });
               readBatch();
             });
@@ -416,23 +400,36 @@
       Promise.all(jobs).then(function (results) {
         var files = [];
         results.forEach(function (r) { files = files.concat(r); });
-        var n = addFiles(files);
-        if (!n) setStatus("No new image files found.", "err");
+        if (!addFiles(files)) setStatus("No new image files found.", "err");
       });
     } else if (e.dataTransfer.files.length) {
       addFiles(Array.prototype.slice.call(e.dataTransfer.files));
     }
   });
 
-  pickBtn.addEventListener("click", function () { picker.click(); });
+  document.getElementById("pickBtn").addEventListener("click", function () { picker.click(); });
   picker.addEventListener("change", function () {
     addFiles(Array.prototype.slice.call(picker.files));
     picker.value = "";
   });
 
-  // --- Build packs.json ---
-  function buildJSON() {
-    var id = document.getElementById("f_id").value.trim();
+  function sanitizeId(id) {
+    return String(id).trim().replace(/[^a-z0-9_-]/gi, "").toUpperCase();
+  }
+
+  function buildPhotos(id) {
+    var sorted = images.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+    return sorted.map(function (f, i) {
+      var ext = (f.name.match(/\.[a-z0-9]+$/i) || [".jpg"])[0].toLowerCase();
+      var num = String(i + 1);
+      while (num.length < 2) num = "0" + num;
+      var base = id + "_" + num + ext;
+      return { file: f, name: base, path: "packs/" + id + "/" + base };
+    });
+  }
+
+  function buildPack() {
+    var id = sanitizeId(document.getElementById("f_id").value);
     var title = document.getElementById("f_title").value.trim();
     var loc = document.getElementById("f_loc").value.trim();
 
@@ -444,13 +441,16 @@
     var total = images.reduce(function (s, f) { return s + f.size; }, 0);
     var mb = Math.max(1, Math.round(total / 1048576));
 
+    var photos = buildPhotos(id);
+
     var pack = {
       id: id,
       title: title.toUpperCase(),
       location: loc,
       size: mb + "MB",
-      files: images.length,
-      zip: "packs/" + id + ".zip"
+      files: photos.length,
+      zip: "packs/" + id + ".zip",
+      photos: photos.map(function (p) { return p.path; })
     };
 
     var existing = [];
@@ -470,6 +470,8 @@
     if (idx >= 0) existing[idx] = pack; else existing.push(pack);
 
     lastJSON = JSON.stringify({ packs: existing }, null, 2);
+    lastPack = { pack: pack, photos: photos };
+
     document.getElementById("output").value = lastJSON;
     document.getElementById("copyBtn").disabled = false;
     document.getElementById("jsonBtn").disabled = false;
@@ -484,16 +486,44 @@
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
   }
 
-  document.getElementById("buildBtn").addEventListener("click", buildJSON);
+  document.getElementById("buildBtn").addEventListener("click", buildPack);
+
+  document.getElementById("packageBtn").addEventListener("click", function () {
+    if (!buildPack()) return;
+    if (!window.JSZip) { setStatus("Zip library failed to load — check your internet connection.", "err"); return; }
+    if (!lastPack) return;
+    setStatus("Building package…");
+
+    var id = lastPack.pack.id;
+    var photos = lastPack.photos;
+
+    var packZip = new JSZip();
+    photos.forEach(function (p) { packZip.file(p.name, p.file); });
+
+    packZip.generateAsync({ type: "blob" }).then(function (packBlob) {
+      var root = new JSZip();
+      var folder = root.folder("packs").folder(id);
+      photos.forEach(function (p) { folder.file(p.name, p.file); });
+      root.folder("packs").file(id + ".zip", packBlob);
+      root.file("packs.json", lastJSON);
+
+      return root.generateAsync({ type: "blob" });
+    }).then(function (blob) {
+      downloadBlob(blob, "upload-" + id + ".zip");
+      setStatus("Package downloaded. Extract it and follow step 04.", "ok");
+    }).catch(function (err) {
+      setStatus("Failed to build package: " + err.message, "err");
+    });
+  });
 
   document.getElementById("copyBtn").addEventListener("click", function () {
     if (!lastJSON) return;
-    var done = function () { setStatus("Copied to clipboard.", "ok"); };
+    function done() { setStatus("Copied to clipboard.", "ok"); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(lastJSON).then(done, function () { fallbackCopy(); });
+      navigator.clipboard.writeText(lastJSON).then(done, fallbackCopy);
     } else {
       fallbackCopy();
     }
@@ -509,18 +539,6 @@
     if (!lastJSON) return;
     downloadBlob(new Blob([lastJSON], { type: "application/json" }), "packs.json");
     setStatus("packs.json downloaded.", "ok");
-  });
-
-  document.getElementById("zipBtn").addEventListener("click", function () {
-    var pack = buildJSON();
-    if (!pack) return;
-    if (!window.JSZip) { setStatus("Zip library failed to load — check your internet connection.", "err"); return; }
-    var zip = new JSZip();
-    images.forEach(function (f) { zip.file(f.name, f); });
-    zip.generateAsync({ type: "blob" }).then(function (blob) {
-      downloadBlob(blob, pack.id + ".zip");
-      setStatus("Zip downloaded (" + pack.files + " files).", "ok");
-    });
   });
 </script>
 </body>

@@ -1,6 +1,6 @@
 # MERT // ARCHITECTURAL ARCHIVE
 
-A single-page static site for Mert — photographer & PhD researcher in tourism — to exhibit architectural photography and distribute wallpaper packs. Built to run on GitHub Pages with zero build step.
+A single-page static site for Mert — photographer & PhD researcher in tourism — to exhibit architectural photography and distribute wallpaper packs. Runs on GitHub Pages with no build step.
 
 **Live site:** `https://<your-username>.github.io`
 
@@ -10,12 +10,26 @@ A single-page static site for Mert — photographer & PhD researcher in tourism 
 
 | File / folder | Purpose |
 | --- | --- |
-| `index.html` | The whole site (gallery, archive table, about, footer). No other pages needed. |
+| `index.html` | The whole site (gallery, archive table, about, footer). |
 | `favicon.svg` | The site icon shown in the browser tab. |
-| `packs.json` | The list of wallpaper packs shown in the archive table. **This is the file you edit to add packs.** |
-| `packs/` | Where the `.zip` files live. Create it when you upload your first pack. |
-| `upload.html` | A helper tool (open it in a browser) that builds `packs.json` and a `.zip` for you. |
+| `packs.json` | The list of wallpaper packs. **This is the file that drives the site.** |
+| `packs/` | Your photo packs. Created automatically when you upload your first pack. |
+| `upload.html` | A helper tool (open it in a browser) that builds everything you need for a pack. |
 | `README.md` | This file. |
+
+---
+
+## How it works
+
+Both the **gallery** (top photos) and the **archive table** (downloads) are generated from `packs.json`. Each pack entry lists:
+
+- `id`, `title`, `location` — shown in the table.
+- `size` — display text for the SIZE column.
+- `files` — number of photos in the pack.
+- `zip` — path to the pack's `.zip` (used by the `[DOWNLOAD .ZIP]` button).
+- `photos` — the individual photo files, shown in the gallery.
+
+You never edit the HTML to add a pack — only `packs.json` (and the uploader does that for you).
 
 ---
 
@@ -32,26 +46,40 @@ If the repo is already named `*.github.io`, Pages usually turns on automatically
 
 ---
 
-## How to add a photo pack (the easy way)
+## How to add a photo pack
 
-Use the **`upload.html`** tool. It runs entirely in your browser — no installs, nothing is uploaded anywhere until you choose to.
+Use the **`upload.html`** tool. It runs entirely in your browser — no installs, nothing leaves your computer.
 
 ### Step-by-step
 
 1. Double-click `upload.html` (it opens in your browser).
 2. Drag a folder of photos into the drop zone (or click `[CHOOSE FOLDER]`).
-3. Fill in **PACK_ID** (next unused number, e.g. `005`), **TITLE**, and **LOCATION**.
-4. Click `[BUILD packs.json]`.
-5. Click `[DOWNLOAD .ZIP]` and `[DOWNLOAD packs.json]` to save both files to your Mac.
-6. Go to your repo on GitHub → **Add file** → **Upload files**.
-7. Drag the `.zip` into the `packs/` folder. If `packs/` doesn't exist yet, type `packs/` in the filename box to create it.
-8. Upload `packs.json` to the root (this replaces the old one).
-9. Scroll down, type a message (e.g. `add pack 005`), and click **Commit changes**.
-10. Wait a minute — the new row appears on the live site with a working `[DOWNLOAD .ZIP]` button.
+3. Fill in **PACK_ID** (next unused number, e.g. `001`), **TITLE**, and **LOCATION**.
+4. Click `[DOWNLOAD UPLOAD PACKAGE]`. This saves one `.zip` containing everything.
+5. Double-click the downloaded zip to extract it. You get a `packs/` folder and a `packs.json` file.
+6. On GitHub, open the repo → **Add file** → **Upload files**.
+7. Drag the `packs` folder **and** the `packs.json` file into the upload box together (GitHub keeps the folder structure).
+8. Scroll down, type a message (e.g. `add pack 001`), and click **Commit changes**.
+9. Wait a minute — your photos appear in the gallery and the pack appears in the archive with a working `[DOWNLOAD .ZIP]` button.
 
-### Updating the list (multiple packs)
+### Adding a second pack
 
-If you're adding a second pack and want to keep the first one, paste your **current** `packs.json` contents into the "CURRENT packs.json" box inside `upload.html` before clicking `[BUILD packs.json]`. The tool merges the new pack on top of it.
+Paste your **current** `packs.json` contents into the "CURRENT packs.json" box in `upload.html` before clicking download. The tool merges the new pack on top of it, so existing packs are kept.
+
+### Starting over
+
+If the current packs.json is empty (default), your first upload **replaces** the demo gallery photos with your own.
+
+---
+
+## File size limits (important)
+
+GitHub's website accepts files up to **25 MB each**, and up to **100 files** per upload.
+
+- Keep each photo under 25 MB (normally fine for JPGs).
+- Keep each pack under 25 MB total so its `.zip` uploads through the browser.
+
+The uploader warns you if a file or pack exceeds these limits. If a pack is too big, split it into two packs.
 
 ---
 
@@ -61,27 +89,23 @@ If you're adding a second pack and want to keep the first one, paste your **curr
 {
   "packs": [
     {
-      "id": "005",
+      "id": "001",
       "title": "BRUTAL CYPRUS",
       "location": "Nicosia & Limassol",
-      "size": "340MB",
+      "size": "24MB",
       "files": 18,
-      "zip": "packs/005.zip"
+      "zip": "packs/001.zip",
+      "photos": [
+        "packs/001/001_01.jpg",
+        "packs/001/001_02.jpg"
+      ]
     }
   ]
 }
 ```
 
-- `id` — a short identifier shown in the `PACK_ID` column.
-- `title` / `location` — shown in the `LOCATION / THEME` column.
-- `size` — display text for the `SIZE` column (the uploader calculates it for you).
-- `files` — number of photos, shown in the `FILES` column.
-- `zip` — path to the pack's zip inside the repo. Leave it as `""` and the row shows `[PENDING]` until the file exists.
-
-> The table is generated from this file by `index.html`. You never need to touch the HTML to add a pack.
-
 ---
 
-## Editing the gallery / text
+## Editing the text / design
 
-Everything visual lives in `index.html` (plain HTML + CSS, no framework). The gallery cards are hand-written at the top of the file; the archive table is generated from `packs.json`. Edit and commit as usual.
+Everything visual lives in `index.html` (plain HTML + CSS, no framework). The gallery and archive table are generated from `packs.json` by a small script at the bottom of `index.html`. Edit and commit as usual.
