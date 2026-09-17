@@ -561,7 +561,7 @@
     });
   }
 
-  fetch("packs.json?cb=" + Date.now())
+  fetch("packs/packs.json?cb=" + Date.now())
     .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function (d) {
       var packs = (d && d.packs) || [];

@@ -286,10 +286,10 @@
   <div class="panel">
     <span class="label">04 // UPLOAD TO GITHUB</span>
     <ol class="steps">
-      <li>Click <code>[DOWNLOAD UPLOAD PACKAGE]</code>. This saves one <code>.zip</code> containing everything.</li>
-      <li>Double-click the downloaded zip to extract it. You get a <code>packs/</code> folder and a <code>packs.json</code> file.</li>
+      <li>Click <code>[DOWNLOAD UPLOAD PACKAGE]</code> — it saves a file called <code>packs.zip</code>.</li>
+      <li>Double-click <code>packs.zip</code> to extract it. Your Mac creates a folder named <code>packs</code>.</li>
       <li>Open <code>github.com/&lt;you&gt;/mert7320.github.io</code> → <code>Add file</code> → <code>Upload files</code>.</li>
-      <li>Drag the <code>packs</code> folder <b>and</b> the <code>packs.json</code> file into the upload box together. GitHub keeps the folder structure.</li>
+      <li>Drag the whole <code>packs</code> folder into the upload box (not just its contents). GitHub keeps the folders inside it.</li>
       <li>Scroll down, type a message like <code>add pack 001</code>, and click <code>Commit changes</code>.</li>
       <li>Wait a minute, then visit <code>https://&lt;you&gt;.github.io</code> — your photos appear in the gallery and the pack appears in the archive.</li>
     </ol>
@@ -505,15 +505,15 @@
 
     packZip.generateAsync({ type: "blob" }).then(function (packBlob) {
       var root = new JSZip();
-      var folder = root.folder("packs").folder(id);
-      photos.forEach(function (p) { folder.file(p.name, p.file); });
-      root.folder("packs").file(id + ".zip", packBlob);
       root.file("packs.json", lastJSON);
+      root.file(id + ".zip", packBlob);
+      var folder = root.folder(id);
+      photos.forEach(function (p) { folder.file(p.name, p.file); });
 
       return root.generateAsync({ type: "blob" });
     }).then(function (blob) {
-      downloadBlob(blob, "upload-" + id + ".zip");
-      setStatus("Package downloaded. Extract it and follow step 04.", "ok");
+      downloadBlob(blob, "packs.zip");
+      setStatus("Downloaded packs.zip. Extract it into a 'packs' folder, then follow step 04.", "ok");
     }).catch(function (err) {
       setStatus("Failed to build package: " + err.message, "err");
     });

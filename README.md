@@ -12,8 +12,8 @@ A single-page static site for Mert — photographer & PhD researcher in tourism 
 | --- | --- |
 | `index.html` | The whole site (gallery, archive table, about, footer). |
 | `favicon.svg` | The site icon shown in the browser tab. |
-| `packs.json` | The list of wallpaper packs. **This is the file that drives the site.** |
-| `packs/` | Your photo packs. Created automatically when you upload your first pack. |
+| `packs/packs.json` | The list of wallpaper packs. **This drives the whole site.** |
+| `packs/001.zip`, `packs/001/` | A pack's download zip and its photos. One subfolder per pack. |
 | `upload.html` | A helper tool (open it in a browser) that builds everything you need for a pack. |
 | `README.md` | This file. |
 
@@ -21,7 +21,7 @@ A single-page static site for Mert — photographer & PhD researcher in tourism 
 
 ## How it works
 
-Both the **gallery** (top photos) and the **archive table** (downloads) are generated from `packs.json`. Each pack entry lists:
+Everything lives inside the `packs/` folder. The gallery (top photos) and the archive table (downloads) are both generated from `packs/packs.json`. Each pack entry lists:
 
 - `id`, `title`, `location` — shown in the table.
 - `size` — display text for the SIZE column.
@@ -29,7 +29,7 @@ Both the **gallery** (top photos) and the **archive table** (downloads) are gene
 - `zip` — path to the pack's `.zip` (used by the `[DOWNLOAD .ZIP]` button).
 - `photos` — the individual photo files, shown in the gallery.
 
-You never edit the HTML to add a pack — only `packs.json` (and the uploader does that for you).
+You never edit the HTML to add a pack — only the `packs/` folder (and the uploader builds it for you).
 
 ---
 
@@ -54,21 +54,21 @@ Use the **`upload.html`** tool. It runs entirely in your browser — no installs
 
 1. Double-click `upload.html` (it opens in your browser).
 2. Drag a folder of photos into the drop zone (or click `[CHOOSE FOLDER]`).
-3. Fill in **PACK_ID** (next unused number, e.g. `001`), **TITLE**, and **LOCATION**.
-4. Click `[DOWNLOAD UPLOAD PACKAGE]`. This saves one `.zip` containing everything.
-5. Double-click the downloaded zip to extract it. You get a `packs/` folder and a `packs.json` file.
+3. Fill in **PACK_ID** (next unused number, e.g. `002`), **TITLE**, and **LOCATION**.
+4. Click `[DOWNLOAD UPLOAD PACKAGE]`. It saves a file called `packs.zip`.
+5. Double-click `packs.zip` to extract it — your Mac creates a folder named `packs`.
 6. On GitHub, open the repo → **Add file** → **Upload files**.
-7. Drag the `packs` folder **and** the `packs.json` file into the upload box together (GitHub keeps the folder structure).
-8. Scroll down, type a message (e.g. `add pack 001`), and click **Commit changes**.
+7. Drag the whole `packs` folder into the upload box (not just its contents). GitHub keeps the folders inside it.
+8. Scroll down, type a message (e.g. `add pack 002`), and click **Commit changes**.
 9. Wait a minute — your photos appear in the gallery and the pack appears in the archive with a working `[DOWNLOAD .ZIP]` button.
 
 ### Adding a second pack
 
-Paste your **current** `packs.json` contents into the "CURRENT packs.json" box in `upload.html` before clicking download. The tool merges the new pack on top of it, so existing packs are kept.
+Paste your **current** `packs/packs.json` contents into the "CURRENT packs.json" box in `upload.html` before clicking download. The tool merges the new pack on top of it, so existing packs are kept.
 
 ### Starting over
 
-If the current packs.json is empty (default), your first upload **replaces** the demo gallery photos with your own.
+If the current `packs/packs.json` is empty (default), your first upload **replaces** the demo gallery photos with your own.
 
 ---
 
@@ -83,7 +83,7 @@ The uploader warns you if a file or pack exceeds these limits. If a pack is too 
 
 ---
 
-## `packs.json` format
+## `packs/packs.json` format
 
 ```json
 {
@@ -108,4 +108,4 @@ The uploader warns you if a file or pack exceeds these limits. If a pack is too 
 
 ## Editing the text / design
 
-Everything visual lives in `index.html` (plain HTML + CSS, no framework). The gallery and archive table are generated from `packs.json` by a small script at the bottom of `index.html`. Edit and commit as usual.
+Everything visual lives in `index.html` (plain HTML + CSS, no framework). The gallery and archive table are generated from `packs/packs.json` by a small script at the bottom of `index.html`. Edit and commit as usual.
