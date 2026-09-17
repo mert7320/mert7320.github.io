@@ -148,6 +148,17 @@
     border-left: 1px solid var(--line);
   }
 
+  .gallery-empty {
+    grid-column: 1 / -1;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
   .card {
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
@@ -486,19 +497,6 @@
 </footer>
 
 <script>
-  // Shown until Mert uploads his own packs (or if packs.json can't load).
-  var DEFAULT_PHOTOS = [
-    { name: "CYPRUS_01", loc: "Nicosia", src: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_02", loc: "Limassol", src: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_03", loc: "Kyrenia", src: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_04", loc: "Famagusta", src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_05", loc: "Lefkara", src: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_06", loc: "Troodos", src: "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_07", loc: "Nicosia", src: "https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_08", loc: "Limassol", src: "https://images.unsplash.com/photo-1431576901776-e539bd916ba2?auto=format&fit=crop&w=900&q=80" },
-    { name: "CYPRUS_09", loc: "Kyrenia", src: "https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&w=900&q=80" }
-  ];
-
   function esc(str) {
     return String(str).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -512,15 +510,32 @@
   function renderGallery(packs) {
     var grid = document.getElementById("gallery-grid");
     if (!grid) return;
+
     var photos = [];
     packs.forEach(function (p) {
       (p.photos || []).forEach(function (src) {
         photos.push({ name: basename(src), loc: p.location, src: src });
       });
     });
-    if (!photos.length) photos = DEFAULT_PHOTOS;
+
+    // Shuffle, then show up to 9 random photos from across all packs.
+    for (var i = photos.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = photos[i];
+      photos[i] = photos[j];
+      photos[j] = tmp;
+    }
+    photos = photos.slice(0, 9);
 
     grid.innerHTML = "";
+    if (!photos.length) {
+      var empty = document.createElement("div");
+      empty.className = "gallery-empty";
+      empty.textContent = "[NO PHOTOS YET // UPLOAD YOUR FIRST PACK]";
+      grid.appendChild(empty);
+      return;
+    }
+
     photos.forEach(function (ph, i) {
       var idx = String(i + 1);
       while (idx.length < 3) idx = "0" + idx;

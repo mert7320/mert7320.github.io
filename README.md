@@ -15,6 +15,7 @@ A single-page static site for Mert — photographer & PhD researcher in tourism 
 | `packs/packs.json` | The list of wallpaper packs. **This drives the whole site.** |
 | `packs/001.zip`, `packs/001/` | A pack's download zip and its photos. One subfolder per pack. |
 | `upload.html` | A helper tool (open it in a browser) that builds everything you need for a pack. |
+| `preview.command` | Double-click to preview the site locally (Mac). |
 | `README.md` | This file. |
 
 ---
@@ -42,7 +43,8 @@ You never edit the HTML to add a pack — only the `packs/` folder (and the uplo
 
 If the repo is already named `*.github.io`, Pages usually turns on automatically — just push the files and check the URL.
 
-> To preview locally (optional): run `python3 -m http.server` in this folder and open `http://localhost:8000`.
+> **To preview locally:** double-click `preview.command` — it opens the site at `http://localhost:8000`.
+> Note: opening `index.html` directly (double-clicking the file) won't show your packs, because browsers block the site from reading `packs/packs.json` over `file://`. Always use the preview script or the live GitHub Pages URL.
 
 ---
 
