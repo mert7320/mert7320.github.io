@@ -171,6 +171,7 @@
     overflow: hidden;
     aspect-ratio: 4 / 3;
     border-bottom: 1px solid var(--line);
+    background: #111111;
   }
 
   .card img {
@@ -507,14 +508,23 @@
     return String(p).split("/").pop();
   }
 
+  function thumbFor(pack, src, idx) {
+    // Prefer the explicit thumbs array (new packs), then the
+    // packs/<id>/thumbs/<file> convention, then the full image.
+    if (pack.thumbs && pack.thumbs[idx]) return pack.thumbs[idx];
+    var file = basename(src);
+    if (pack.id) return "packs/" + pack.id + "/thumbs/" + file;
+    return src;
+  }
+
   function renderGallery(packs) {
     var grid = document.getElementById("gallery-grid");
     if (!grid) return;
 
     var photos = [];
     packs.forEach(function (p) {
-      (p.photos || []).forEach(function (src) {
-        photos.push({ name: basename(src), loc: p.location, src: src });
+      (p.photos || []).forEach(function (src, idx) {
+        photos.push({ name: basename(src), loc: p.location, src: src, thumb: thumbFor(p, src, idx) });
       });
     });
 
@@ -542,9 +552,18 @@
       var a = document.createElement("a");
       a.className = "card";
       a.href = "#archive";
+      // First row loads eagerly for a fast first paint; the rest lazy-load.
+      // decoding="async" keeps scrolling smooth. onerror falls back to the
+      // full-res image so old packs without thumbs still display.
+      var eager = i < 3;
+      var loading = eager ? "eager" : "lazy";
+      var fetchPri = eager ? "high" : "low";
       a.innerHTML =
         '<figure><span class="index">' + idx + '</span>' +
-        '<img src="' + esc(ph.src) + '" alt="' + esc(ph.loc) + '" loading="lazy"></figure>' +
+        '<img src="' + esc(ph.thumb) + '" data-full="' + esc(ph.src) + '" alt="' + esc(ph.loc) + '"' +
+        ' loading="' + loading + '" decoding="async" fetchpriority="' + fetchPri + '"' +
+        ' width="800" height="450"' +
+        ' onerror="if(this.src!==this.dataset.full){this.src=this.dataset.full;}"></figure>' +
         '<div class="exif"><span class="k">FILE:</span> ' + esc(ph.name) +
         ' <span class="k">// LOC:</span> ' + esc(ph.loc) + '</div>';
       grid.appendChild(a);
