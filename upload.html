@@ -421,10 +421,54 @@
     var sorted = images.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
     return sorted.map(function (f, i) {
       var ext = (f.name.match(/\.[a-z0-9]+$/i) || [".jpg"])[0].toLowerCase();
+      // Gallery thumbs are always JPEG — small and fast. Full-res keeps its extension.
+      if (ext !== ".jpg" && ext !== ".jpeg") ext = ".jpg";
       var num = String(i + 1);
       while (num.length < 2) num = "0" + num;
       var base = id + "_" + num + ext;
-      return { file: f, name: base, path: "packs/" + id + "/" + base };
+      return { file: f, name: base, path: "packs/" + id + "/" + base, thumbPath: "packs/" + id + "/thumbs/" + base };
+    });
+  }
+
+  // Downscale to max 800px wide, JPEG q0.72 — typically 30–110KB vs 1–2MB.
+  // Runs entirely in the browser so the gallery loads ~20x faster.
+  function makeThumbBlob(file) {
+    var MAXW = 800, Q = 0.72;
+    function viaBitmap(bitmap) {
+      var scale = Math.min(1, MAXW / bitmap.width);
+      var w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+      var c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      var ctx = c.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      if (bitmap.close) bitmap.close();
+      return new Promise(function (res, rej) {
+        c.toBlob(function (b) { b ? res(b) : rej(new Error("thumb encode failed")); }, "image/jpeg", Q);
+      });
+    }
+    if (window.createImageBitmap) {
+      return createImageBitmap(file).then(viaBitmap).catch(function () { return makeThumbViaImg(file, MAXW, Q); });
+    }
+    return makeThumbViaImg(file, MAXW, Q);
+  }
+
+  function makeThumbViaImg(file, MAXW, Q) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var scale = Math.min(1, MAXW / img.naturalWidth);
+          var w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
+          var c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          c.toBlob(function (b) { b ? res(b) : rej(new Error("thumb encode failed")); }, "image/jpeg", Q);
+        } catch (e) { URL.revokeObjectURL(url); rej(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("could not read " + file.name)); };
+      img.src = url;
     });
   }
 
@@ -450,7 +494,8 @@
       size: mb + "MB",
       files: photos.length,
       zip: "packs/" + id + ".zip",
-      photos: photos.map(function (p) { return p.path; })
+      photos: photos.map(function (p) { return p.path; }),
+      thumbs: photos.map(function (p) { return p.thumbPath; })
     };
 
     var existing = [];
@@ -495,25 +540,33 @@
     if (!buildPack()) return;
     if (!window.JSZip) { setStatus("Zip library failed to load — check your internet connection.", "err"); return; }
     if (!lastPack) return;
-    setStatus("Building package…");
+    setStatus("Building thumbnails…");
 
     var id = lastPack.pack.id;
     var photos = lastPack.photos;
 
+    // 1) Full-res zip for the [DOWNLOAD .ZIP] button (unchanged).
     var packZip = new JSZip();
     photos.forEach(function (p) { packZip.file(p.name, p.file); });
 
+    var thumbBlobs;
     packZip.generateAsync({ type: "blob" }).then(function (packBlob) {
-      var root = new JSZip();
-      root.file("packs.json", lastJSON);
-      root.file(id + ".zip", packBlob);
-      var folder = root.folder(id);
-      photos.forEach(function (p) { folder.file(p.name, p.file); });
-
-      return root.generateAsync({ type: "blob" });
+      // 2) Generate 800px thumbs for the gallery.
+      var jobs = photos.map(function (p) { return makeThumbBlob(p.file); });
+      return Promise.all(jobs).then(function (blobs) {
+        thumbBlobs = blobs;
+        var root = new JSZip();
+        root.file("packs.json", lastJSON);
+        root.file(id + ".zip", packBlob);
+        var folder = root.folder(id);
+        photos.forEach(function (p) { folder.file(p.name, p.file); });
+        var thumbs = folder.folder("thumbs");
+        photos.forEach(function (p, i) { thumbs.file(p.name, thumbBlobs[i]); });
+        return root.generateAsync({ type: "blob" });
+      });
     }).then(function (blob) {
       downloadBlob(blob, "packs.zip");
-      setStatus("Downloaded packs.zip. Extract it into a 'packs' folder, then follow step 04.", "ok");
+      setStatus("Downloaded packs.zip (incl. thumbs/). Extract it into a 'packs' folder, then follow step 04.", "ok");
     }).catch(function (err) {
       setStatus("Failed to build package: " + err.message, "err");
     });
